@@ -37,6 +37,7 @@ import org.springframework.lang.Nullable;
  * @since 1.1
  * @see org.springframework.core.io.Resource
  */
+// bean的解析，主要是针对Spring配置文件的解析。这个解析过程主要通过BeanDefinitionReader来完成。
 public interface BeanDefinitionReader {
 
 	/**

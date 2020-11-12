@@ -113,6 +113,11 @@ import org.springframework.lang.Nullable;
  * @see DisposableBean#destroy
  * @see org.springframework.beans.factory.support.RootBeanDefinition#getDestroyMethodName
  */
+
+// BeanFactory作为顶层的一个接口类，它定义了IOC容器的基本功能规范。
+// 只对IOC容器基本行为作了定义，根本不关系你的Bean是如何定义、如何加载的。
+// 正如 我们只关心工厂里得到什么样的产品对象，至于工厂如何生产这些对象的，这个解开不关心。
+// 如果想知道工厂如何生产对象的，我们需要看具体IOC容器的实现。其中Spring提供了一个高级IOC容器， {@link org.springframework.context.ApplicationContext}。
 public interface BeanFactory {
 
 	/**
@@ -136,6 +141,7 @@ public interface BeanFactory {
 	 * @throws NoSuchBeanDefinitionException if there is no bean with the specified name
 	 * @throws BeansException if the bean could not be obtained
 	 */
+	// 根据bean的名称获取在IOC容器中bean实例
 	Object getBean(String name) throws BeansException;
 
 	/**
@@ -248,6 +254,7 @@ public interface BeanFactory {
 	 * @param name the name of the bean to query
 	 * @return whether a bean with the given name is present
 	 */
+	// 对bean进行检索，查看IOC容器中是否已经有这个bean的名字
 	boolean containsBean(String name);
 
 	/**
@@ -283,6 +290,7 @@ public interface BeanFactory {
 	 * @see #getBean
 	 * @see #isSingleton
 	 */
+	// 根据bean 的名字获取IOCbean的示例，并判断是否是原型
 	boolean isPrototype(String name) throws NoSuchBeanDefinitionException;
 
 	/**
