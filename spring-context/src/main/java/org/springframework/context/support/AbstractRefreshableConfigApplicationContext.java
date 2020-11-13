@@ -65,6 +65,7 @@ public abstract class AbstractRefreshableConfigApplicationContext extends Abstra
 	 * i.e. with distinct locations separated by commas, semicolons or whitespace.
 	 * <p>If not set, the implementation may use a default as appropriate.
 	 */
+	// 处理多个文件资源路径之间 使用 ，; \t\n 解析成数组形式
 	public void setConfigLocation(String location) {
 		setConfigLocations(StringUtils.tokenizeToStringArray(location, CONFIG_LOCATION_DELIMITERS));
 	}
@@ -73,11 +74,13 @@ public abstract class AbstractRefreshableConfigApplicationContext extends Abstra
 	 * Set the config locations for this application context.
 	 * <p>If not set, the implementation may use a default as appropriate.
 	 */
+	// 解析Bean 定义资源文件的路径，处理多个资源文件字符串数组
 	public void setConfigLocations(@Nullable String... locations) {
 		if (locations != null) {
 			Assert.noNullElements(locations, "Config locations must not be null");
 			this.configLocations = new String[locations.length];
 			for (int i = 0; i < locations.length; i++) {
+				// resolvePath 为同一个类中将字符串解析为路径的方法。
 				this.configLocations[i] = resolvePath(locations[i]).trim();
 			}
 		}

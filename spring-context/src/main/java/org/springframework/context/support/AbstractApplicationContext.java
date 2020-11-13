@@ -151,9 +151,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	public static final String APPLICATION_EVENT_MULTICASTER_BEAN_NAME = "applicationEventMulticaster";
 
 
+	// 静态初始化块，在整个容器创建的过程中只执行一次。
 	static {
 		// Eagerly load the ContextClosedEvent class to avoid weird classloader issues
 		// on application shutdown in WebLogic 8.1. (Reported by Dustin Woods.)
+		// 为了避免应用程序在WebLogic 8.1关闭时出现类加载异常加载问题。
+		//  加载关闭事件类
 		ContextClosedEvent.class.getName();
 	}
 
@@ -225,6 +228,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * Create a new AbstractApplicationContext with no parent.
 	 */
 	public AbstractApplicationContext() {
+		// 默认构造方法
 		this.resourcePatternResolver = getResourcePatternResolver();
 	}
 
@@ -233,6 +237,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * @param parent the parent context
 	 */
 	public AbstractApplicationContext(@Nullable ApplicationContext parent) {
+		// 注意 此处的this() 默认构造方法
 		this();
 		setParent(parent);
 	}
@@ -453,7 +458,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * @see #getResources
 	 * @see org.springframework.core.io.support.PathMatchingResourcePatternResolver
 	 */
+
+	// 获取一个Spring Source的加载器 用于读取SpringBean配置信息
 	protected ResourcePatternResolver getResourcePatternResolver() {
+		// AbstractApplicationContext 继承DefaultResourceLoader ，因此也是个资源加载器(ResourceLoder)
+		//  Spring 资源加载器，其 getResource(String location) 方法用于载入资源
 		return new PathMatchingResourcePatternResolver(this);
 	}
 
@@ -511,44 +520,58 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		return this.applicationListeners;
 	}
 
+	// 此方法规定了IOC容器的启动流程。  对Bean定义的载入过程
 	@Override
 	public void refresh() throws BeansException, IllegalStateException {
 		synchronized (this.startupShutdownMonitor) {
 			// Prepare this context for refreshing.
+			// 1.调用容器准备刷新的方法，获取容器的当前时间，同事给容器设置同步表示
 			prepareRefresh();
 
 			// Tell the subclass to refresh the internal bean factory.
+			// 2.告诉子类启动 refreshBeanFactory() 方法，Bean定义资源文件的载入从子类 refreshBeanFactory()方法启动
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
 			// Prepare the bean factory for use in this context.
+			// 3.为BeanFactory配置容器特性，例如类加载器、事件处理器等
 			prepareBeanFactory(beanFactory);
 
 			try {
 				// Allows post-processing of the bean factory in context subclasses.
+				// 4.为容器的某些子类指定特殊的BeanPost事件处理器
 				postProcessBeanFactory(beanFactory);
 
 				// Invoke factory processors registered as beans in the context.
+				// 5.调用所有注册的BeanFactoryPostProcessors的Bean
 				invokeBeanFactoryPostProcessors(beanFactory);
 
 				// Register bean processors that intercept bean creation.
+				// 6.为BeanFactory注册BeanPost事件处理器，
+				// BeanPostProcessors 是Bean后置处理器，用于监听容器触发的事件
 				registerBeanPostProcessors(beanFactory);
 
 				// Initialize message source for this context.
+				// 7.初始化信息源，和国际化信息
 				initMessageSource();
 
 				// Initialize event multicaster for this context.
+				// 8.初始化容器事件传播器
 				initApplicationEventMulticaster();
 
 				// Initialize other special beans in specific context subclasses.
+				//9.初始化子类中某些特殊Bean的初始化方法
 				onRefresh();
 
 				// Check for listener beans and register them.
+				// 10.为事件传播器 注册事件监听器
 				registerListeners();
 
 				// Instantiate all remaining (non-lazy-init) singletons.
+				// 11. 初始化所有剩余的单例bean
 				finishBeanFactoryInitialization(beanFactory);
 
 				// Last step: publish corresponding event.
+				// 12.初始化容器的生命周期事件处理器，并发布容器生命周期事件
 				finishRefresh();
 			}
 
@@ -559,9 +582,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				}
 
 				// Destroy already created singletons to avoid dangling resources.
+				// 13.销毁已创建的Bean
 				destroyBeans();
 
 				// Reset 'active' flag.
+				// 14.取消refresh操作，重置容器的同步标识
 				cancelRefresh(ex);
 
 				// Propagate exception to caller.
@@ -571,6 +596,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			finally {
 				// Reset common introspection caches in Spring's core, since we
 				// might not ever need metadata for singleton beans anymore...
+				// 15.重置公共缓存
 				resetCommonCaches();
 			}
 		}

@@ -81,6 +81,7 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 	 * @param configLocation resource location
 	 * @throws BeansException if context creation failed
 	 */
+	// 一、寻找入口   main 方法启动    读取配置文件
 	public ClassPathXmlApplicationContext(String configLocation) throws BeansException {
 		this(new String[] {configLocation}, true, null);
 	}
@@ -130,17 +131,33 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 	 * @param refresh whether to automatically refresh the context,
 	 * loading all bean definitions and creating all singletons.
 	 * Alternatively, call refresh manually after further configuring the context.
-	 * @param parent the parent context
+	 * @param parent the parent context .
 	 * @throws BeansException if context creation failed
 	 * @see #refresh()
+	 *
+	 * ------------------------------- <br/>
+	 * cindy :
+	 * 1、super 是调用父容器的构造方法。
+	 * @see org.springframework.context.support.AbstractApplicationContext#setParent
+	 * 2、setConfigLocations  设置Bean 配置信息的定位路径
+	 * @see org.springframework.context.support.AbstractRefreshableConfigApplicationContext#setConfigLocations
 	 */
 	public ClassPathXmlApplicationContext(
 			String[] configLocations, boolean refresh, @Nullable ApplicationContext parent)
 			throws BeansException {
 
+		// 二、获取配置路径
+		// 1、调用父类的容器构造方法  (设置容器资源加载器)
 		super(parent);
+		// 2、调用父类方法，设置 Bean 配置信息的定位路径
 		setConfigLocations(configLocations);
+		// 以上两步 是Spring IOC容器在初始化时将配置的Bean配置信息定为Spring封装的Resource.
+
+
+
+		// 开始启动
 		if (refresh) {
+			// Spring IOC容器对Bean配资源的载入  从此函数开始。 refresh()是个模板方法。规定了IOC容器的启动流程。
 			refresh();
 		}
 	}
