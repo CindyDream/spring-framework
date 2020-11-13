@@ -140,6 +140,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 	}
 
 
+	// TODO：Cindy
 	@Override
 	public Resource getResource(String location) {
 		Assert.notNull(location, "Location must not be null");

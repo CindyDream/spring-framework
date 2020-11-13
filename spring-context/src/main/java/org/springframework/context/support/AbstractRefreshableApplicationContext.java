@@ -119,17 +119,25 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 * This implementation performs an actual refresh of this context's underlying
 	 * bean factory, shutting down the previous bean factory (if any) and
 	 * initializing a fresh bean factory for the next phase of the context's lifecycle.
+	 *
+	 * Cindy :
+	 * @see org.springframework.context.support.AbstractApplicationContext#obtainFreshBeanFactory() 谁调用的
 	 */
 	@Override
 	protected final void refreshBeanFactory() throws BeansException {
+		// 如果已经有容器，销毁容器中的bean,关闭容器
 		if (hasBeanFactory()) {
 			destroyBeans();
 			closeBeanFactory();
 		}
 		try {
+			// 创建IOC容器
 			DefaultListableBeanFactory beanFactory = createBeanFactory();
 			beanFactory.setSerializationId(getId());
+			// 对IOC容器进行定制化，如设置启动参数。开启注解的自动装配等
 			customizeBeanFactory(beanFactory);
+			// 调用载入Bean定义的方法，主要这里有使用了一个委派模式，在当前类中只定义了抽象的loadBeanDefinitions方法，具体的实现见 调用子类容器
+			// note: 下面这个方法有点绕，注意跟紧了
 			loadBeanDefinitions(beanFactory);
 			synchronized (this.beanFactoryMonitor) {
 				this.beanFactory = beanFactory;
@@ -238,6 +246,12 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 * @throws IOException if loading of bean definition files failed
 	 * @see org.springframework.beans.factory.support.PropertiesBeanDefinitionReader
 	 * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader
+	 *
+	 * cindy:
+	 *  谁调用的
+	 * @see #refreshBeanFactory
+	 * 此方法由子类来实现
+	 * @see org.springframework.context.support.AbstractXmlApplicationContext#loadBeanDefinitions(DefaultListableBeanFactory beanFactory)
 	 */
 	protected abstract void loadBeanDefinitions(DefaultListableBeanFactory beanFactory)
 			throws BeansException, IOException;

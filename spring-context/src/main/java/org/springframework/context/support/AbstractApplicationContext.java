@@ -657,6 +657,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * @return the fresh BeanFactory instance
 	 * @see #refreshBeanFactory()
 	 * @see #getBeanFactory()
+	 * Cindy:
+	 * @see #refresh()
 	 */
 	protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
 		refreshBeanFactory();
@@ -1399,6 +1401,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * @throws BeansException if initialization of the bean factory failed
 	 * @throws IllegalStateException if already initialized and multiple refresh
 	 * attempts are not supported
+	 *
+	 * Cindy：
+	 * @see #obtainFreshBeanFactory() 谁调用的
+	 * @see org.springframework.context.support.AbstractRefreshableApplicationContext#refreshBeanFactory() 谁实现的方法,子类实现
 	 */
 	protected abstract void refreshBeanFactory() throws BeansException, IllegalStateException;
 
