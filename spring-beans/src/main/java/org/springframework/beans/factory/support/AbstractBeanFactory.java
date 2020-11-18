@@ -196,6 +196,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	@Override
 	public Object getBean(String name) throws BeansException {
+		// doGetBean 才是IOC 容器 中 被管理bean 的入口
 		return doGetBean(name, null, null, false);
 	}
 
@@ -236,6 +237,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @throws BeansException if the bean could not be created
 	 */
 	@SuppressWarnings("unchecked")
+	// 真正实现IOC容器获取bean 的功能，也是触发依赖注入功能的地方
 	protected <T> T doGetBean(final String name, @Nullable final Class<T> requiredType,
 			@Nullable final Object[] args, boolean typeCheckOnly) throws BeansException {
 
@@ -243,9 +245,14 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		Object bean;
 
 		// Eagerly check singleton cache for manually registered singletons.
+		// 先从缓存中读取  是否已经有被创建过的单例类型 的bean ,
+		// 对于单例模式的bean 整个IOC容器 只能创建一次，不需要重复创建
 		Object sharedInstance = getSingleton(beanName);
+		// IOC 容器创建单例模式bean 实例对象
 		if (sharedInstance != null && args == null) {
 			if (logger.isTraceEnabled()) {
+				// 如果指定名称的bean 在容器中已有单例模式的bean 被创建
+				// 直接返回已经创建的bean
 				if (isSingletonCurrentlyInCreation(beanName)) {
 					logger.trace("Returning eagerly cached instance of singleton bean '" + beanName +
 							"' that is not fully initialized yet - a consequence of a circular reference");
@@ -254,16 +261,26 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					logger.trace("Returning cached instance of singleton bean '" + beanName + "'");
 				}
 			}
+			// 获取给定bean 的实例对象。主要是完成 FactoryBean 的相关处理
+			// 注意：BeanFactory 是管理容器中 Bean 的工厂，而 FactoryBean 是创建对象工厂bean,两者之间有区别
 			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
 		}
 
 		else {
 			// Fail if we're already creating this bean instance:
 			// We're assumably within a circular reference.
+			/**
+			 * 缓存没有正在创建的单例模式bean
+			 * 缓存中已经有创建的原型模式bean
+			 * 但是由于循环引用的问题导致实例化对象失败
+			 */
 			if (isPrototypeCurrentlyInCreation(beanName)) {
 				throw new BeanCurrentlyInCreationException(beanName);
 			}
 
+			/**
+			 *
+			 */
 			// Check if bean definition exists in this factory.
 			BeanFactory parentBeanFactory = getParentBeanFactory();
 			if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
